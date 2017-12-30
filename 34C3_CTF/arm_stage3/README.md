@@ -35,7 +35,7 @@ int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
   for ( i = 0; i <= 29; ++i )
   {
     flag[i] = sub_8000534();
-    read_char(flag[i]);                         // read 29 bytes
+    read_char(flag[i]);                         // read 30 bytes
   }
   print_text("\r\n");
   if ( flag[9] != '_'

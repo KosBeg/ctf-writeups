@@ -35,7 +35,7 @@ int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
   for ( i = 0; i <= 13; ++i )
   {
     flag[i] = sub_80010DC();
-    read_char(flag[i]);                         // read 13 bytes
+    read_char(flag[i]);                         // read 14 bytes
   }
   print_text("\r\n");
   if ( 34 * flag[13]
@@ -244,6 +244,8 @@ int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
 ```
 
 Readed flag started from 0x20000444, and we have
+
+Solver(python)
 ```
 from z3 import *                                                              
 
