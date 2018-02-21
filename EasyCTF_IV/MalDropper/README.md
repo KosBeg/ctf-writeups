@@ -1,4 +1,4 @@
-# LicenseCheck
+# MalDropper
 
 **Category:** Reverse Engineering
 **Points:** 160
