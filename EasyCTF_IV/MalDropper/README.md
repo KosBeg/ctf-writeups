@@ -14,6 +14,7 @@ Note: this isn't actually malware, it just borrows obfuscation techniques from l
 ## Write-up
 
 When we start this file we see
+
 ![screen_1](screen_1.png)
 
 For this .net binary we will use [dnSpy](https://github.com/0xd4d/dnSpy)
@@ -41,9 +42,11 @@ private static void Main(string[] args)
 ```
 
 After some analysis I set breakpoint at end of main func
+
 ![screen_2](screen_2.png)
 
 and in "Modules" tab(Debug->Windows->Modules to enable) I seen
+
 ![screen_3](screen_3.png)
 
 I switch to payload and it dynamically decrypt and run some program again -_-
@@ -86,6 +89,7 @@ private static void Main()
 	Console.WriteLine("Flag created!");
 }
 ```
+
 ![screen_4](screen_4.png)
 
 Flag is: easyctf{12761716281964844769159211786140015599014519771561198738372}
