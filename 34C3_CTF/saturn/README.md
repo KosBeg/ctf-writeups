@@ -1,4 +1,4 @@
-# Junuior ARM4 - mid
+# Junuior Saturn
 
 **Category:** rev
 **Points:** 136
