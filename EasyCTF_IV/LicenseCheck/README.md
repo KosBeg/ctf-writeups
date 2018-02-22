@@ -61,6 +61,7 @@ I don't know how to deobfuscate automatically, so I'll do it manually. For deobf
 3) a bit of luck
 
 After deobfuscation(nop all unnecessary code) and decompilation we have very beautiful code, you can even compile it, for me it working fine in vc17 :D
+
 **UPD:** [original source of this task](https://github.com/EasyCTF/easyctf-iv-problems/tree/master/license_check/source)
 
 ```C
