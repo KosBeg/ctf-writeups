@@ -15,7 +15,7 @@ Note: this isn't actually malware, it just borrows obfuscation techniques from l
 
 When we start this file we see
 
-![screen_1](screen_1.png)
+![screen_0](screen_0.png)
 
 For this .net binary we will use [dnSpy](https://github.com/0xd4d/dnSpy)
 
@@ -43,11 +43,11 @@ private static void Main(string[] args)
 
 After some analysis I set breakpoint at end of main func
 
-![screen_2](screen_2.png)
+![screen_1](screen_1.png)
 
 and in "Modules" tab(Debug->Windows->Modules to enable) I seen
 
-![screen_3](screen_3.png)
+![screen_2](screen_2.png)
 
 I switch to payload and it dynamically decrypt and run some program again -_-
 ```
@@ -90,6 +90,6 @@ private static void Main()
 }
 ```
 
-![screen_4](screen_4.png)
+![screen_3](screen_3.png)
 
-Flag is: easyctf{12761716281964844769159211786140015599014519771561198738372}
+Flag is: **easyctf{12761716281964844769159211786140015599014519771561198738372}**

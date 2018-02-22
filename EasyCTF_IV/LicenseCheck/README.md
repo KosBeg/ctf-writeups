@@ -135,7 +135,7 @@ unsigned int f_check_key(int *key)
 ```
 
 We do not need to check the email (because it always passes successfully), we need key check: when f_check_key return 0x1AE33 we will win.
-In function f_check_key our key with len 16 is cut into 4õ4 parts, convert parts from the base 30 (0_0) to base 10 and xor them among themselves.
+In function f_check_key our key with len 16 is cut into 4x4 parts, convert parts from the base 30 (0_0) to base 10 and xor them among themselves.
 ```
 key_hash_0 ^  key_part_0 == key_hash_1 ; key_hash_0 = 0
 key_hash_1 ^  key_part_1 == key_hash_2
@@ -180,15 +180,25 @@ s.add( k1 >= 27000, k1 <= 809999 ) # 809999 is TTTT in 30 base, the largest digi
 s.add( k2 >= 27000, k2 <= 809999 )
 s.add( k3 >= 27000, k3 <= 809999 )
 
+# for a bit of fun :D
+s.add( k0 == 583574 ) # LICE in 30 base
+s.add( k1 == 646635 ) # NSEF in 30 base
+s.add( k2 == 672974 ) # ORME in 30 base
+
 s.add(k0 ^ k1 ^ k2 ^ k3 == 0x1AE33)
 
 while s.check() == sat:
   r = s.model()
   print int2base(r[k0].as_long()) + int2base(r[k1].as_long()) + int2base(r[k2].as_long()) + int2base(r[k3].as_long())
-  s.add(k0 != r[k0])
+#  s.add(k0 != r[k0])
 #  s.add(k1 != r[k1])
 #  s.add(k2 != r[k2])
-#  s.add(k3 != r[k3])
+  s.add(k3 != r[k3])
+```
+
+```
+PS C:\Users\PC\Desktop> python.exe .\LicenseCheck_keygen.py
+licenseformeq7eg
 ```
 
 That's all :)
