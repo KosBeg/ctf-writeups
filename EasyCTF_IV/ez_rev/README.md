@@ -81,6 +81,6 @@ while s.check() == sat:
 
 and answer is `g3zkm`
 
-![screen-0_ez_rev](screen-0_ez_rev.png.png)
+![screen-0_ez_rev](screen_0_ez_rev.png)
 
 Flag is: **easyctf{10453125111114}**
