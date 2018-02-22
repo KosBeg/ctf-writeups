@@ -12,7 +12,9 @@ Go to `/problems/rop1` on the shell server and tell me whats in flag.txt.
 ## Write-up
 
 ![screen_0_rop1](screen_0_rop1.png)
+
 ![screen_1_rop1](screen_1_rop1.png)
+
 ![screen_2_rop1](screen_2_rop1.png)
 
 So we need just rewrtite return addres to get_flag(+8 for saved registers and -8 for text "EasyPWN\x00", I did it for beauty ;))
