@@ -39,18 +39,10 @@ __libc_start_main(sub_843, retaddr, &retaddr, sub_9D0, nullsub_1, a2, &a1); // m
 ```
 
 ```
-int __cdecl main(int argc, const char **argv, const char **envp)
+int main(int argc, const char **argv, const char **envp)
 {
-  int num_1; // [esp+0h] [ebp-20h]
-  int num_2; // [esp+4h] [ebp-1Ch]
-  int num_3; // [esp+8h] [ebp-18h]
-  int num_4; // [esp+Ch] [ebp-14h]
-  int num; // [esp+10h] [ebp-10h]
-  unsigned int CANARY; // [esp+14h] [ebp-Ch]
-  int *v10; // [esp+18h] [ebp-8h]
+  int num_1, num_2, num_3, num_4, num;
 
-  v10 = &argc;
-  CANARY = __readgsdword(0x14u);
   num = 1;
   f_alarm();
   scanf("%d %d %d %d", &num_1, &num_2, &num_3, &num_4);
@@ -78,8 +70,8 @@ int __cdecl main(int argc, const char **argv, const char **envp)
 }
 ```
 
-Solver(C)
-```
+Solver
+```C
 #include <stdio.h>
 
 int main() {
@@ -106,8 +98,6 @@ int main() {
 Correct! Here is your flag: 123456789 123456789 123456801 447146224                                                   
 Correct! Here is your flag: 123456789 123456789 123456803 199754714                                                   
 Correct! Here is your flag: 123456789 123456789 123456805 637654116                                                   
-Correct! Here is your flag: 123456789 123456789 123456809 940794520                                                   
-Correct! Here is your flag: 123456789 123456789 123456821 676577844
 ...
 ```
 ```

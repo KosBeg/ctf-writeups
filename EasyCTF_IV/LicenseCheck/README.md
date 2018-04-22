@@ -144,7 +144,6 @@ key_hash_1 ^  key_part_1 == key_hash_2
 key_hash_2 ^  key_part_2 == key_hash_3
 key_hash_3 ^  key_part_3 == 0x1AE33
 ```
-
 After simplify this expressions we have
 ```
 key_part_0 ^  key_part_1 ^  key_part_2 ^  key_part_3 == 0x1AE33
@@ -153,7 +152,7 @@ key_part_0 ^  key_part_1 ^  key_part_2 ^  key_part_3 == 0x1AE33
 Let's write z3 script-keygen! :D
 
 ```python
-from z3 import *
+from z3_staff import * # https://github.com/KosBeg/z3_staff
 import string
 
 digs = string.digits + string.letters
@@ -174,33 +173,37 @@ def int2base(x, base = 30):
   digits.reverse()
   return ''.join(digits)
 
-k0, k1, k2, k3 = BitVecs('k0 k1 k2 k3', 32)
+var_num = 4
+create_vars(var_num, size=32, prefix = 'k')
+solver()
+init_vars(globals())
+set_ranges(var_num, rstart=27000, rend=809999, prefix = 'k') # 27000 is 1000 in 30 base, the least digit with 4 symbols
+                                                             # 809999 is TTTT in 30 base, the largest digit with 4 symbols
 
-s = Solver()
-s.add( k0 >= 27000, k0 <= 809999 ) # 27000 is 1000 in 30 base, the least digit with 4 symbols
-s.add( k1 >= 27000, k1 <= 809999 ) # 809999 is TTTT in 30 base, the largest digit with 4 symbols
-s.add( k2 >= 27000, k2 <= 809999 )
-s.add( k3 >= 27000, k3 <= 809999 )
+add_eq( k0 ^ k1 ^ k2 ^ k3 == 0x1AE33 )
 
 # for a bit of fun :D
-s.add( k0 == 583574 ) # LICE in 30 base
-s.add( k1 == 646635 ) # NSEF in 30 base
-s.add( k2 == 672974 ) # ORME in 30 base
+add_eq( k0 == 583574 ) # LICE in 30 base
+add_eq( k1 == 646635 ) # NSEF in 30 base
+add_eq( k2 == 672974 ) # ORME in 30 base
 
-s.add(k0 ^ k1 ^ k2 ^ k3 == 0x1AE33)
-
+i = 0
+start_time = time.time()
 while s.check() == sat:
-  r = s.model()
-  print int2base(r[k0].as_long()) + int2base(r[k1].as_long()) + int2base(r[k2].as_long()) + int2base(r[k3].as_long())
-#  s.add(k0 != r[k0])
-#  s.add(k1 != r[k1])
-#  s.add(k2 != r[k2])
-  s.add(k3 != r[k3])
+  ans = prepare_founded_values(var_num, prefix = 'k')
+  _str = ''
+  for j in ans:
+    _str += int2base(j)
+  print _str
+  iterate_all(var_num, prefix = 'k')
+  i += 1
+print('--- %.2f seconds && %d answer(s) ---' % ((time.time() - start_time), i) )
 ```
 
 ```
-PS C:\Users\PC\Desktop> python.exe .\LicenseCheck_keygen.py
+PS C:\!CTF> python LicenseCheck_keygen.py
 licenseformeq7eg
+--- 0.01 seconds && 1 answer(s) ---
 ```
 
 That's all :)

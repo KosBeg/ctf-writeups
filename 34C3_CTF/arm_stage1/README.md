@@ -32,9 +32,8 @@ Load file in IDA, set "Processor type" to "ARM little-endian", then set "ROM sta
 sub_8000108 - is first function(entry point), and only call function sub_8000478, sub_8000478 call sub_8000290, sub_8000290 is main.
 
 In main we have code like this
-```
-int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
-{
+```C
+void main(void) {
   sub_80003F8();
   sub_8000304();
   print_text("The flag is: 34C3_I_4dm1t_it_1_f0und_th!s_with_str1ngs\r\n");

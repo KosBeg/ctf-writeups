@@ -27,15 +27,12 @@ Load file in IDA, set "Processor type" to "ARM little-endian", then set "ROM sta
 sub_8000108 - is first function(entry point), and only call function sub_80004A8, sub_80004A8 call sub_8000290, sub_8000290 is main.
 
 In main we have code like this
-```
-int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
-{
-  char *i; // [sp+Ch] [bp+Ch]@1
-
+```C
+void main(void) {
   sub_8000428();
   sub_8000334();
   print_text("The flag is: ");
-  for ( i = xored_bytes; *i; ++i )
+  for ( char *i = g_xored_bytes; *i; ++i )
     print_char(*i ^ 0x55);
   print_text("\r\n");
   while ( 1 )
@@ -43,24 +40,17 @@ int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
 }
 ```
 
-Solver(javascript)
-```
-var xored_bytes =
-[
-  0x66, 0x61, 0x16, 0x66, 0x0A, 0x0D, 0x65, 0x27, 0x0A, 0x66, 
-  0x3B, 0x36, 0x27, 0x2C, 0x25, 0x21, 0x3C, 0x65, 0x3B, 0x0A, 
-  0x64, 0x26, 0x0A, 0x37, 0x66, 0x26, 0x21, 0x0A, 0x36, 0x27, 
-  0x2C, 0x25, 0x21, 0x65
-];
-var flag = "";
+Solver
+```python
+xored_bytes = [ 0x66, 0x61, 0x16, 0x66, 0x0A, 0x0D, 0x65, 0x27, 0x0A, 0x66, 0x3B, 0x36, 0x27, 0x2C, 0x25, 0x21, 0x3C, 0x65, 0x3B, 0x0A, 0x64, 0x26, 0x0A, 0x37, 0x66, 0x26, 0x21, 0x0A, 0x36, 0x27, 0x2C, 0x25, 0x21, 0x65 ]
+flag = ""
 
-for (i in xored_bytes) {
-  flag += String.fromCharCode(xored_bytes[i] ^ 0x55)
-}
+for i in xored_bytes:
+  flag += chr(i ^ 0x55)
 
-console.log(flag) // 34C3_X0r_3ncrypti0n_1s_b3st_crypt0
+print flag # 34C3_X0r_3ncrypti0n_1s_b3st_crypt0
 ```
 
 2. After reverse we found out that we could just run file(in emulator)
 
-Flag is: **34C3_X0r_3ncrypti0n_1s_b3st_crypt0!s_with_str1ngs**
+Flag is: **34C3_X0r_3ncrypti0n_1s_b3st_crypt0**

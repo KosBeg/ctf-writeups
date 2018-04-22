@@ -24,15 +24,12 @@ Load file in IDA, set "Processor type" to "ARM little-endian", then set "ROM sta
 sub_8000108 - is first function(entry point), and only call function sub_80005D8, sub_80005D8 call sub_8000290, sub_8000290 is main.
 
 We add segment 0x20000000-0x20005000 and in main we have code like this
-```
-int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
-{
-  signed int i; // [sp+Ch] [bp+Ch]@1
-
+```C
+void main(void) {
   sub_8000558();
   sub_8000440();
   print_text("Enter flag: ");
-  for ( i = 0; i <= 29; ++i )
+  for ( signed int i = 0; i <= 29; ++i )
   {
     flag[i] = sub_8000534();
     read_char(flag[i]);                         // read 30 bytes
