@@ -1,4 +1,4 @@
-# [ENGLIS WRITEUP](find_my_password.md)
+# [ENGLISH WRITEUP](find_my_password.md)
 # Началось лето, закончилась школа - `наступило время для игр! :D`
 Недавно был `Viettel Mates CTF 2018` в котором из-за лени я не учавствовал, но решил посмотреть несколько тасков.
 
