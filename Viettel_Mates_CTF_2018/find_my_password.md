@@ -1,62 +1,64 @@
-# Началось лето, закончилась школа - `наступило время для игр! :D`
-Недавно был `Viettel Mates CTF 2018` в котором из-за лени я не учавствовал, но решил посмотреть несколько тасков.
+# [РАЙТАП НА РУССКОМ](find_my_password_ru.md)
+# Summer began, the school was over - `it's time for the games! :D`
+Recently was `Viettel Mates CTF 2018` in which I did not participate due to laziness, but decided to see a few of the tasks.
 
-Мне понравился `Find my password`, таск с категории реверс:
+I liked `Find my password` - task from the reverse category:
+
 ```
 I have set a very strong password. Can you find it ?
 
 [Binary here](https://drive.google.com/open?id=1RioCBfPAR-THYyuVMAgXzRx3UAXyStZf)
 ```
 
-Итак, приступим!
+So, let's start!
 
-## Первичный анализ
+## Primary analysis
 
-Первым делом закинем файлик в DIE(Detect It Easy) - он нам говорит что это 32битный PE бинарь, накрытый UPX’ом.
+First of all, let's drop this binary in DIE([Detect It Easy](http://ntinfo.biz)) - it's tells us that this is a 32-bit PE binary, packed by UPX.
 
 ![DIE Result](DIE_result.png)
 
-Пробуем расспаковать самим же юпыхом `upx -d find_my_password.exe` и всё прекрасно расспаковывается.
+We try to unpack it with the UPX `upx -d find_my_password.exe` and everything is perfectly unpacked.
 
 ![UPX Unpacked](UPX_unpacked.png)
 
-Пробуем запустить расспакованый файл - получаем креш. Загружаем в отладчик: ага, ASLR, [отключаем его](https://will.io/blog/2013/05/31/disable-aslr/), всё работает - у нас запрашивают пароль, двигаемся дальше.
+Try to run unpacked file - get crash. We load it into the debugger: yeah, ASLR, [turn it off](https://will.io/blog/2013/05/31/disable-aslr/), it works - we are asked for a password, move on.
 
 ![Normal Run](normal_run.png)
 
-Загружаем в ваш любимый дизассемблер(radare2, cutter, IDA, binary ninja - а я буду юзать иду), после анализа видим что у нас что-то смахивающее на ВМ.
+Load it in your favourite disassembler(radare2, cutter, IDA, binary ninja - I'll use IDA), after the analysis we see that we have something like the VM.
 
-Так оно и есть! После анализа и восстановления структур(в чём нам помогли [HexRaysPyTools](https://github.com/igogo-x86/HexRaysPyTools) и [HexRaysCodeXplorer](https://github.com/REhints/HexRaysCodeXplorer)) видно, что у нашей ВМ 4 однобайтовые регистры, 255 байт памяти ВМ, 172 байта пикода(0x0423488-0x0423533):
+It is! After analyzing and restoring the structures (in which [HexRaysPyTools](https://github.com/igogo-x86/HexRaysPyTools) and [HexRaysCodeXplorer](https://github.com/REhints/HexRaysCodeXplorer) helped us), it is clear that our VM has 4 one-byte registers, 255 bytes of VM memory, 172 bytes of pcode(0x0423488-0x0423533):
 ```C
 struct vm_ctx
 {
-    char vm_memory_255[255]; // память vm
-    char password[255];      // буфер для пароля
-    short gap_2_1FE;         // gap, не юзается нигде
-    int pcode_size;          // размер пикода
-    char *pcode;             // указатель на пикод
-    char REGS[4];            // массив с регистрами
-    int _EIP;                // указатель на место в пикоде
-    int mem_idx;             // указатель на место в памяти ВМ
-    enum STATUS_E VM_STATUS; // используется для текущего состояния исполнения инструкции ВМ
+    char vm_memory_255[255]; // VM memory
+    char password[255];      // password buffer
+    short gap_2_1FE;         // gap
+    int pcode_size;          // size of pcode
+    char *pcode;             // pcode pointer
+    char REGS[4];            // registers array
+    int _EIP;                // pcode index
+    int mem_idx;             // memory index
+    enum STATUS_E VM_STATUS; // current VM status
 };
 
 enum STATUS_E
 {
-    VM_NO_OPCODE = 0x1,        // нет такого опкода, ВМ останавливается
-    VM_REG_IDX_OVERFLOW = 0x2, // индекс регистра большеравно чем 4, ВМ останавливается
-    VM_CONTINUE = 0x3,         // всё ок, переходим к следующей инструкции
-    VM_MAX_EIP = 0x4,          // конец пикода, ВМ останавливается
-    VM_WIN = 0x5,              // или мы победили, или проиграли, ВМ останавливается
+    VM_NO_OPCODE = 0x1,        // there is no such opcode, VM stops
+    VM_REG_IDX_OVERFLOW = 0x2, // reg idx >= 4, VM stops
+    VM_CONTINUE = 0x3,         // all is ok, goto next instruction
+    VM_MAX_EIP = 0x4,          // end of pcode, VM stops
+    VM_WIN = 0x5,              // we win or we fail, VM stops
 };
 ```
-и главная функция по адресу 0x0417C40 с 14 хендлерами, которая немного обфусцирована.
+and the main function at the address 0x0417C40 with 14 handlers, which is a bit obfuscated.
 
-За счёт обфускации ида не может сделать функцию, что бы можно было б декомпильнуть код, и сократить время анализа. Но ведь для нас это не проблема ;)
+Due to obfuscation, IDA cannot make a function and decompile the code to reduce the analysis time. But it's not a problem for us ;)
 
-Вкратце ВМ работает так: инициализируется сама ВМ - регистры, память, указатели, счетчики, потом инициализируетя пикод, считывается пароль, копируется в память виртуалки, дальше основной цикл ВМ(в котором поштучно исполняются инструкции), и если после него `vm_ctx->password[21] = 1;` значит мы победили.
+In short, the VM works like this: VMs themselves are initialized - registers, memory, pointers, counters, then the pcode is initialized, reads the password, pass is copied into the virtual machine memory, then the main VM loop (in which the instructions are executed one by one), and if after it `vm_ctx->password[21] = 1;` then we won.
 
-Тоже самое, только кодом, а не словами :D
+The same, only code, not text :D
 ```C
 void wmain(void)
 {
@@ -166,14 +168,14 @@ enum VM_STATUS_E __thiscall f_ret_error(vm_ctx *vm_ctx)
 }
 ```
 
-Теперь чуть более интересно - деобфускация VM_MAIN и разбор хендлеров.
+Now a little more interesting - VM_MAIN deobfuscation and analysis of handlers.
 
-## Деобфускация
+## Deobfuscation
 
-Обфускация у нас простенькая, несколько opaque predicate, да несколько мелких трюков вроде такого:
+We have simple obfuscation, a few opaque predicates, and a few small tricks like this:
 ```x86asm
-.text:004181F9                 js      short loc_4181FF               ; хотя бы один из этих jmp'ов всегда выполнится
-.text:004181FB                 jns     short loc_4181FF               ; ибо получается условие типа `if (false || true) then jmp`
+.text:004181F9                 js      short loc_4181FF               ; at least one of these JMP's will always taken
+.text:004181FB                 jns     short loc_4181FF               ; because condition like `if (false || true) then jmp`
 .text:004181FD                 jmp     short near ptr loc_41820A+1
 ```
 ```x86asm
@@ -181,7 +183,7 @@ enum VM_STATUS_E __thiscall f_ret_error(vm_ctx *vm_ctx)
 .text:00417C9C                 jz      short fake_pop_eax             ; opaque predicate, part1
 .text:00417C9E                 pop     eax                            ; push -> pop == nop
 .text:00417C9F                 jnz     short real_code                ; opaque predicate, part2
-.text:00417CA1                 pusha                                  ; сюда мы не попадаем никогда
+.text:00417CA1                 pusha                                  ; here we never get
 .text:00417CA2                 movsb
 .text:00417CA3                 mov     dl, 0FCh
 .text:00417CA5                 mov     eax, 0F63780DDh
@@ -193,14 +195,14 @@ enum VM_STATUS_E __thiscall f_ret_error(vm_ctx *vm_ctx)
 .text:00417CAC                 pop     eax                            ; push -> pop == nop
 .text:00417CAD
 .text:00417CAD real_code:
-.text:00417CAD                 movsx   eax, byte ptr [ebp-3]          ; реальный код
+.text:00417CAD                 movsx   eax, byte ptr [ebp-3]          ; real code
 ```
 ```x86asm 
 .text:00418272                 push    eax
-.text:00418273                 call    inc_ret_addr                   ; тоже самое что и jmp 0x0418279
-.text:00418278                 push    ecx                            ; по этому этот код никогда не исполнится
+.text:00418273                 call    inc_ret_addr                   ; same as `jmp 0x0418279`
+.text:00418278                 push    ecx                            ; for this reason this code will never be executed
 .text:00418279                 js      short fake_pop_then_real_code  ; opaque predicate, part1
-.text:0041827B                 mov     eax, 0CC316234h                ; мусор, за счёт push eax -> pop eax
+.text:0041827B                 mov     eax, 0CC316234h                ; garbage, because push eax -> pop eax
 .text:00418280                 jns     short fake_pop_then_real_code  ; opaque predicate, part2
 .text:00418280 ; ---------------------------------------------------------------------------
 .text:00418282                 db 0DCh
@@ -218,17 +220,17 @@ enum VM_STATUS_E __thiscall f_ret_error(vm_ctx *vm_ctx)
 .text:00418288 fake_pop_then_real_code:
 .text:00418288                                                        ; .text:00418280↑j
 .text:00418288                 pop     eax                            ; push -> pop == nop
-.text:00418289                 movsx   ecx, byte ptr [ebp-3]          ; реальный код
+.text:00418289                 movsx   ecx, byte ptr [ebp-3]          ; real code
 ```
 
-Сколько раз сталкиваюсь с такой простенькой обфускацией на ЦТФ'ах - всё никак не придумаю как автоматизировать деобфускацию, иногда прокатывает [optimice](https://code.google.com/archive/p/optimice/)(не работает в иде 7.x), иногда только ручкам.
+How many times I face such a simple obfuscation on CTF's-still can not figure out how to automate deobfuscation, sometimes rolls [optimice](https://code.google.com/archive/p/optimice/)(does not work in IDA 7.x), sometimes only manually.
 
-Тут будем комбинировать эти способы - для этого воспользуемся патчером для иды - [keypatch](https://github.com/keystone-engine/keypatch) для нопа мусорных инструкций, а потом optimice для оптимизации функции и её CFG(уберёт лишние nop'ы и jmp'ы, за счёт чего будет красивый граф функции).
+Here we will combine these methods - for this, we use the patcher for IDA - [keypatch](https://github.com/keystone-engine/keypatch) for NOP the garbage instructions, and then optimice to optimize the function and its CFG (remove the extra NOP's and JMP's, due to which there will be a nice graph of the function).
 
-## Разбор хендлеров
+## Analysis of handlers
 
-И так, обфускацию убрали, всё лишнее занопили, можем декомпильнуть функцию в иде - разбираем хендлеры. У нас их как уже было сказано - 14 штук.
-Декомпиль выдаёт нам такой код:
+And so, obfuscation was removed, all unnecessary NOPed - we can decompile a function in IDA - disassemble handlers. We have them as already mentioned-14 handlers.
+Decompiler gives us this code:
 ```C
 STATUS_E __thiscall VM_MAIN(vm_ctx *vm_ctx)
 {
@@ -357,7 +359,7 @@ STATUS_E __thiscall VM_MAIN(vm_ctx *vm_ctx)
 }
 ```
 
-Хорошо читаемый и легкопонятный код, и вместо такого
+A well-read and easy-to-understand code, and instead of
 ```x86asm
 .text:0041838C                    HANDLERS_TABLE  dd offset loc_417CC8    ; jump table for switch statement
 .text:0041838C                                    dd offset loc_417D1B
@@ -375,9 +377,9 @@ STATUS_E __thiscall VM_MAIN(vm_ctx *vm_ctx)
 .text:0041838C                                    dd offset loc_4182C3
 ```
 
-После разбора получаем такое :)
+After analysis, get this :)
 
-Где MEM - байт из памяти вм, BYTE - байт из пикода, REG - регистр, PASS - байт из пароля.
+Where MEM - bytes of VM memory, BYTE - byte from pcode, REG - register, PASS  - bytes from the password.
 ```x86asm
 .text:0041838C                    HANDLERS_TABLE  dd offset MOV_MEM_BYTE  ; jump table for switch statement
 .text:0041838C                                    dd offset MOV_MEM_REG
@@ -395,12 +397,12 @@ STATUS_E __thiscall VM_MAIN(vm_ctx *vm_ctx)
 .text:0041838C                                    dd offset XOR_REG_BYTE
 ```
 
-Теперь уже хотя бы немного можно себе представить что происходит в ВМ.
+Now at least a little you can imagine what is happening in the VM.
 
-## Пишем дизассемблер пикода на Rust
-ЦТФ давно закончился, времени у нас много, по этому я решил попрактиковаться в новом для меня(месяц на нём) и очень крутом языке - Rust.
+## Write a Rust pcode disassembler
+CTF is over, we have a lot of time, so I decided to practice a new for me (a month on it) and a very cool language - Rust.
 
-Переписываем код VM_MAIN на Rust и попутно добавляя дизассемблирование инструкций и чуть отсебятины(можно запустить на https://play.rust-lang.org):
+We rewrite the VM_MAIN code to Rust and in the process add the disassembly of instructions(you can run it at https://play.rust-lang.org):
 ```rust
 use std::io;
 
@@ -835,9 +837,9 @@ impl OPCODE {
 }
 ```
 
-## Разбор листинга и трасы ВМ
+## Analysis of VM listing and trace
 
-Получаем такое - траса ВМ с попутным исполнением пикода и обязательно исполненые условные переходы(если не прыгать - то мы попадаем на байт 0xC, что останавливает ВМ, и говорит что мы проиграли, а так как у нас не дизасм и он не рекурсивный, а у нас скорее эмулятор, то приходится прыгать):
+We get such a VM trace with a passing pcode execution and necessarily executed conditional transitions (if not to jump, then we get to the 0xC byte, which stops the VM, and says that we lost, and since it's not  a disassembler and it is not recursive, but we are more like an emulator, then we have to jump):
 
 ```
 00 10                                  memory[11] = 16
@@ -904,7 +906,7 @@ impl OPCODE {
 06 15 00                               PASS[21] = REG0                  ; REG0 = 1
 ```
 
-После изучения дизасма мы можем заметить такие уравнения(а можем и не заметить `¯\_(ツ)_/¯`):
+After studying disasm we can notice such equations (or may not notice `¯\_(ツ)_/¯`):
 
 ```
 PASS[0] ^ 99 == 16
@@ -921,7 +923,7 @@ PASS[11] ^ 116 == PASS[12]
 PASS[1] + 66 == PASS[0]
 ```
 
-Пихаем их в какой нибудь SMT solver(например тут я заюзал Z3, а можно заюзать самописный в 75 строчек, точнее не самописный, а переписаный с C++ на Rust `¯\_(ツ)_/¯`) и получаем:
+For solving this equation we will use Z3 SMT solver with python binding:
 
 ```python
 from z3 import *
@@ -962,8 +964,10 @@ PS C:\Users\PC\Desktop> python sol.py
 s1mpl3_r1ght
 ```
 
-Пробуем вводить этот пароль:
+Trying to enter this password:
 
 ![We win!!!](we_win.png)
 
-Bот и всё - прога довольная и мы тоже, мы победили простенькую ВМ с простенькой обфускацией)
+That's all - program is happy and we too, we defeated a simple VM with a simple obfuscation)
+
+PS: you can congratulate me on graduation, now I'm not a schoolboy :D
