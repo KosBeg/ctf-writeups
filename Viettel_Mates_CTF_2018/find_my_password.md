@@ -223,13 +223,13 @@ We have simple obfuscation, a few opaque predicates, and a few small tricks like
 .text:00418289                 movsx   ecx, byte ptr [ebp-3]          ; real code
 ```
 
-How many times I face such a simple obfuscation on CTF's-still can not figure out how to automate deobfuscation, sometimes rolls [optimice](https://code.google.com/archive/p/optimice/)(does not work in IDA 7.x), sometimes only manually.
+How many times I face such a simple obfuscation on CTF's-still can not figure out how to automate deobfuscation: sometimes [optimice](https://code.google.com/archive/p/optimice/)(does not work in IDA 7.x), sometimes only manually.
 
-Here we will combine these methods - for this, we use the patcher for IDA - [keypatch](https://github.com/keystone-engine/keypatch) for NOP the garbage instructions, and then optimice to optimize the function and its CFG (remove the extra NOP's and JMP's, due to which there will be a nice graph of the function).
+Here we will combine these methods - for this, we use the patcher for IDA - [keypatch](https://github.com/keystone-engine/keypatch) for NOP the garbage instructions, and then `optimice` to optimize the function and its CFG (remove the extra NOP's and JMP's, due to which there will be a nice graph of the function).
 
 ## Analysis of handlers
 
-And so, obfuscation was removed, all unnecessary NOPed - we can decompile a function in IDA - disassemble handlers. We have them as already mentioned-14 handlers.
+And so, obfuscation was removed, all unnecessary NOPed - we can decompile a function in IDA - let's go analyze handlers! We have as already mentioned - 14 handlers.
 Decompiler gives us this code:
 ```C
 STATUS_E __thiscall VM_MAIN(vm_ctx *vm_ctx)
@@ -839,7 +839,7 @@ impl OPCODE {
 
 ## Analysis of VM listing and trace
 
-We get such a VM trace with a passing pcode execution and necessarily executed conditional transitions (if not to jump, then we get to the 0xC byte, which stops the VM, and says that we lost, and since it's not  a disassembler and it is not recursive, but we are more like an emulator, then we have to jump):
+We get such a VM trace with a passing pcode execution and necessarily executed conditional transitions (if not to jump, then we get to the 0xC byte, which stops the VM, and says that we fail, and since it's not a disassembler and it is not recursive, but it's more like an emulator, then we need to jump):
 
 ```
 00 10                                  memory[11] = 16
@@ -906,7 +906,7 @@ We get such a VM trace with a passing pcode execution and necessarily executed c
 06 15 00                               PASS[21] = REG0                  ; REG0 = 1
 ```
 
-After studying disasm we can notice such equations (or may not notice `¯\_(ツ)_/¯`):
+After analysis of disasm we can notice such equations (or may not notice `¯\_(ツ)_/¯`):
 
 ```
 PASS[0] ^ 99 == 16
@@ -968,6 +968,6 @@ Trying to enter this password:
 
 ![We win!!!](we_win.png)
 
-That's all - program is happy and we too, we defeated a simple VM with a simple obfuscation)
+That's all - program is happy and we too: we defeated a simple VM with a simple obfuscation)
 
 PS: you can congratulate me on graduation, now I'm not a schoolboy :D
