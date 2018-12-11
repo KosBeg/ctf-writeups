@@ -52,7 +52,7 @@ Goto google.translate and we'll have: "Data type is signed"(from Swahili).
 
 But in binary we have two movsx(sign extend) and one movzx(zero extend).
 
-So patch this binary at 0x1400010DC
+So patch this binary at 0x1400010D4
 
 ```c
 .text:00000001400010C0 print_loop:                             ; CODE XREF: main+76↓j
@@ -61,7 +61,7 @@ So patch this binary at 0x1400010DC
 .text:00000001400010CA                 movsx   edx, [rsp+rax+718h+buff] ; load byte and print
 .text:00000001400010CF                 call    printf
 .text:00000001400010CF
-.text:00000001400010D4                 movsx   eax, sil ; patch `movsx` here to `movzx`
+.text:00000001400010D4                 movsx   eax, sil        ; patch `movsx` here to `movzx`
 .text:00000001400010D8                 lea     rdi, [rdi+1]
 .text:00000001400010DC                 movzx   esi, byte ptr [rdi]
 .text:00000001400010DF                 inc     ebx
