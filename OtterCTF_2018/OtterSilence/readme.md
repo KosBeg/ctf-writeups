@@ -2,7 +2,7 @@
 
 **Category:** Reverse Engineering
 **Points:** 300
-**Solves:** 17
+**Solves:** 18
 **Description:**
 
 Yet another one of Rick's creations...
