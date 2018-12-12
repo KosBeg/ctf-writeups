@@ -1,4 +1,4 @@
-# Otter Silence
+# Call Me Rick
 
 **Category:** Reverse Engineering
 **Points:** 450
