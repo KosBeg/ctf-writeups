@@ -7,19 +7,19 @@
 
 Rick created this twisted program that will only work if you enter the right two numbers.
 
-Remember to return from function and use nops to fill in any gaps.
+Remember to return from the function and use nops to fill in any gaps.
 
-EDIT: There were multiple of possible answers so I changed the flag format.
+EDIT: There were multiple possible answers so I changed the flag format.
 
-flag{uppercase hex values of the 5 bytes nessecery to win the flag}
+flag{uppercase hex values of the 5 bytes necessary to win the flag}
 
 [CallMeRick.exe](CallMeRick.exe)
 
 ## Write-up
 
-We have c++ 32bit windows binary builded in debug mode, load it in disassembler.
+We have c++ 32bit windows binary built in debug mode, load it in the disassembler.
 
-In `main` function we have prety easy code:
+In `main` function we have a pretty easy code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int main()
 {
@@ -54,7 +54,7 @@ int main()
 
 So we need to enter 8 bytes shellcode, but what we can do with it?
 
-Then I found `Congratulations` in string, and by xrefs get to function `sub_45D0B0`
+Then I found `Congratulations` in strings, and by xrefs get to function `sub_45D0B0`
 
 ```C
 .text:0045D0D0 6A 00                                push    0               ; uType
@@ -64,7 +64,7 @@ Then I found `Congratulations` in string, and by xrefs get to function `sub_45D0
 .text:0045D0DE FF 15 BC 71 53 00                    call    ds:__imp_MessageBoxA
 ```
 
-Ok, we need to call `sub_45D0B0` function in way that program don't crash.
+Ok, we need to call `sub_45D0B0` function in the way that program doesn't crash.
 
 We can do something like this
 

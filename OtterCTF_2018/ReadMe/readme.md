@@ -13,9 +13,9 @@ He also hates when someone debugs his code.
 
 ## Write-up
 
-We have small c++ 64bit windows binary, load it in disassembler.
+We have small c++ 64bit windows binary, load it in the disassembler.
 
-In `main` function we have prety easy code:
+In `main` function we have prety easy code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int __cdecl main(int argc, const char **argv, const char **envp)
 {
@@ -81,9 +81,9 @@ int __cdecl main(int argc, const char **argv, const char **envp)
 }
 ```
 
-Program read user input and then compare it to sove values.
+The program read user input and then compare it to some values.
 
-Ok, main idea of solving is patch antidebug and get all values of `buff[idx]` at
+Ok, the main idea of solving is patch anti-debug and get all values of `buff[idx]` at
 ```C
       if ( user_input[cou] != buff[idx] )
 ```
@@ -142,16 +142,16 @@ patched code
 .text:00000001400012C0 90                             nop
 ```
 
-Now antidebug defeated)))
+Now anti-debug defeated)))
 
-And we can just enter any password and easy collect all values of `cl` at `0x1400012BB` 
+And we can just enter any password and easily collect all values of `cl` at `0x1400012BB` 
 
 ```C
 .text:00000001400012B7 0F B6 0C 30                    movzx   ecx, byte ptr [rax+rsi]
 .text:00000001400012BB 38 4C 1C 58                    cmp     [rsp+rbx+2A0h+user_input], cl     ; <<< HERE
 ```
 
-Set breakpoint at `0x1400012BB`, load in debugger and get flag byte by byte.
+Set breakpoint at `0x1400012BB`, load in the debugger and get flag byte by byte.
 
 ![values](values.png)
 

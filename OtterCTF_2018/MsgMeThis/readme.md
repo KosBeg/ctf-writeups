@@ -13,9 +13,9 @@ Could you get the correct flag?
 
 ## Write-up
 
-We have c++ 32bit windows binary builded in debug mode, load it in disassembler.
+We have c++ 32bit windows binary build in debug mode, load it in the disassembler.
 
-In `main` function we have next code:
+In `main` function we have next code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int __cdecl main(int argc, const char **argv, const char **envp)
 {
@@ -138,7 +138,7 @@ Pay attention to
   return (v10)(0, &v12, &v12, 0, v10 ^ 0x67616C66, v10 ^ 0x6568537B, v10 ^ 0x6F436C6C, v10 ^ 0x7D646564);
 ```
 
-If we convert numbers to ascii we'll have
+If we convert numbers to ASCII we'll have
 
 ```C
   return (v10)(0, &v12, &v12, 0, v10 ^ 'galf', v10 ^ 'ehS{', v10 ^ 'oCll', v10 ^ '}ded');

@@ -15,9 +15,9 @@ As for me - this is the most interesting and complex RE-task on this CTF.
 
 Ok, let's start!
 
-We have big for CTF(13 mb) c++ 32bit windows binary, load it in disassembler.
+We have big for CTF(13 MB) c++ 32bit windows binary, load it in the disassembler.
 
-In `main` function we have next code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726):
+In `main` function we have next code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int __cdecl main(int argc, const char **argv, const char **envp)
 {

@@ -13,9 +13,9 @@ Be quick.
 
 ## Write-up
 
-We have small c++ 32bit windows binary, load it in disassembler.
+We have small c++ 32bit windows binary, load it in the disassembler.
 
-In `main` function we have prety easy code:
+In `main` function we have a pretty easy code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int main()
 {
@@ -89,7 +89,7 @@ Briefly: we get string-resource with `uID = 1337`, then decode this string by xo
 00C5113A | FF15 0040C600            | call dword ptr ds:[<&RegGetValueA>]     | RegGetValueA
 ```
 
-So we need only 4 char xor_key that we can just brute(long way) or we can use flag format to restore key `¯\_(ツ)_/¯`
+So we need only 4 char xor_key that we can just brute(a long way) or we can use flag format to restore key `¯\_(ツ)_/¯`
 
 Xor first 4 bytes of xored_flag with `CTF{` we'll have xor key `1337` or `31 33 33 37` as bytes
 

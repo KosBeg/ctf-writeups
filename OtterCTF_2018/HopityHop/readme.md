@@ -5,15 +5,15 @@
 **Solves:** 24
 **Description:**
 
-Morty wrote his own RE challenge, but it doesn't work correctly. When morty asked rick what was the problem he took a quick look and only said: "Aina ya data imesainiwa" it probably has some meaning in BirdMan's tongue or something...
+Morty wrote his own RE challenge, but it doesn't work correctly. When Morty asked Rick what was the problem he took a quick look and only said: "Aina ya data imesainiwa" it probably has some meaning in BirdMan's tongue or something...
 
 [HopityHop.exe](HopityHop.exe)
 
 ## Write-up
 
-We have small c++ 64bit windows binary, load it in disassembler.
+We have small c++ 64bit windows binary, load it in the disassembler.
 
-In `main` function we have prety easy code:
+In `main` function we have a pretty easy code [(short write-up how to get so clear code)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446560726) and [(fast way to locate the main function when it isn't recognized by IDA)](https://github.com/KosBeg/ctf-writeups/issues/1#issuecomment-446636801):
 ```C
 int main()
 {
@@ -40,7 +40,7 @@ int main()
 }
 ```
 
-Run this binary and we'll have some strange string with non-prinrable chars:
+Run this binary and we'll have some strange string with non-printable chars:
 ```
 PS C:\Users\PC\Desktop> .\HopityHop.exe
 foWznvJXRMZOFtvKe
@@ -50,7 +50,7 @@ Then carefully read the description and found strange words: "Aina ya data imesa
 
 Goto google.translate and we'll have: "Data type is signed"(from Swahili). 
 
-But in binary we have two movsx(sign extend) and one movzx(zero extend).
+But in binary, we have two movsx(sign extend) and one movzx(zero extend).
 
 So patch this binary at 0x1400010D4
 
