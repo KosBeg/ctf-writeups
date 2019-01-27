@@ -141,7 +141,7 @@ fn main() {
 
     for height in 0..=500 {
         for width in 0..=500 {
-            // first 25 bytes of any PNG image
+            // first 25 bytes of PNG header
             let known = [
                 0x89,
                 0x50,
