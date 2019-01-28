@@ -73,7 +73,7 @@ void TFrmMain_Button1Click(my_s *arg_1)
             TControl_GetText(arg_1->TFrmMain_K5_TEdit, &text_5_ptr_2);
             UStrCatN(&MY_PASS, 5, v6, text_5_ptr_2);
             TMemoryStream = TObject(TMemoryStream, 1, v7);
-            TResourceStream = TControlScrollBar__bctr(TResourceStream, 1, hInstance, &dword_5F0E2C, 10);
+            TResourceStream = TControlScrollBar__bctr(TResourceStream, 1, hInstance, L"Out", 10);
             TPngImage = TCustomStringsValuesList(TPngImage, 1, v9);
             TStream_SetPosition(TResourceStream, v10, v11, 0, 0);
             TStream_SetPosition(TMemoryStream, v12, v13, 0, 0);
@@ -119,7 +119,7 @@ void TFrmMain_Button1Click(my_s *arg_1)
 }
 ```
 
-Messy code, but if in brief: we get 5 keys with len 5, then concatenate in one string-key `MY_PASS`, then xor-decode some binary blob with this key:
+Messy code, but if in brief: we get 5 keys with len 5, then concatenate in one string-key `MY_PASS`, then xor-decode resource `OUT`  with this key:
 
 ```C
   v37 ^= MY_PASS[COU % pass_len];
